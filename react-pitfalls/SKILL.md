@@ -1,9 +1,9 @@
 ---
-name: react-doctor
+name: react-pitfalls
 description: Audit React code for common pitfalls (unnecessary useEffect, redundant state, state mutation, re-render issues, memo/context misuse, list keys, stale closures, ref misuse). Use when user wants to review or improve React performance, mentions slow renders, useEffect problems, or asks to audit React components.
 ---
 
-# React Doctor
+# React Pitfalls
 
 Find common React mistakes in TypeScript/JavaScript files. Surface a numbered list. Apply user-selected fixes.
 

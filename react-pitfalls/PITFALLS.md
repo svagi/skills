@@ -1,6 +1,6 @@
 # React Pitfalls Catalog
 
-Reference for the `react-doctor` skill. Each entry: detection signal, fix recipe, minimal example.
+Reference for the `react-pitfalls` skill. Each entry: detection signal, fix recipe, minimal example.
 
 Sources: [react.dev/learn/you-might-not-need-an-effect](https://react.dev/learn/you-might-not-need-an-effect) and [developerway.com/posts/react-re-renders-guide](https://www.developerway.com/posts/react-re-renders-guide), plus common pitfalls outside both.
 
