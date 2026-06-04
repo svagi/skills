@@ -40,21 +40,31 @@ Use the Agent tool with `subagent_type=Explore` to walk the codebase. Don't foll
 
 Apply the **deletion test** to anything you suspect is shallow: would deleting it concentrate complexity, or just move it? A "yes, concentrates" is the signal you want.
 
-### 2. Present candidates
+### 2. Present candidates as an HTML report
 
-Present a numbered list of deepening opportunities. For each candidate:
+Write a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user — `xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows — and tell them the absolute path.
+
+The report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals — use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.
+
+For each candidate, the same template as before, but rendered as a card:
 
 - **Files** — which files/modules are involved
 - **Problem** — why the current architecture is causing friction
 - **Solution** — plain English description of what would change
-- **Benefits** — explained in terms of locality and leverage, and also in how tests would improve
+- **Benefits** — explained in terms of locality and leverage, and how tests would improve
+- **Before / After diagram** — side-by-side, custom-drawn, illustrating the shallowness and the deepening
+- **Recommendation strength** — one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
+
+End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
 **Use [LANGUAGE.md](LANGUAGE.md) vocabulary for the architecture.** Name modules after the domain concepts they represent — not "the FooBarHandler," and not "the Order service."
 
-Do NOT propose interfaces yet. Ask the user: "Which of these would you like to explore?"
+See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.
+
+Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
 
 ### 3. Grilling loop
 
 Once the user picks a candidate, drop into a grilling conversation. Walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
-**Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
+- **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
