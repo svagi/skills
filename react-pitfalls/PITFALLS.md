@@ -41,21 +41,21 @@ const filtered = useMemo(() => filter(items, query), [items, query]);
 ### 3. Resetting all state on prop change [medium]
 
 **Detect:** `useEffect(() => { setX(initial); setY(initial); }, [propId])`.
-**Fix:** Pass `key={propId}` to the component. React re-mounts; state resets naturally.
+**Fix:** Pass `key={propId}` to the component. React re-mounts; state resets naturally. Only when the whole subtree should reset with the prop — the remount also clears focus, refs, subscriptions, and child state; otherwise use a targeted reset (pitfall 4).
 
 ```tsx
 // Before
 function Profile({ userId }) {
-  const [tab, setTab] = useState('home');
-  useEffect(() => setTab('home'), [userId]);
+    const [tab, setTab] = useState("home");
+    useEffect(() => setTab("home"), [userId]);
 }
-<Profile userId={userId} />
+<Profile userId={userId} />;
 
 // After
 function Profile({ userId }) {
-  const [tab, setTab] = useState('home');
+    const [tab, setTab] = useState("home");
 }
-<Profile key={userId} userId={userId} />
+<Profile key={userId} userId={userId} />;
 ```
 
 ### 4. Adjusting state on prop change [medium]
@@ -72,24 +72,30 @@ useEffect(() => setSelection(null), [items]);
 const [prevItems, setPrevItems] = useState(items);
 const [selection, setSelection] = useState(null);
 if (items !== prevItems) {
-  setPrevItems(items);
-  setSelection(null);
+    setPrevItems(items);
+    setSelection(null);
 }
 ```
 
 ### 5. Event-handler logic in Effect [low]
 
 **Detect:** `useEffect` body branches on a flag set by a handler (e.g., `if (jsonToSubmit) post(jsonToSubmit)`).
-**Fix:** Move the logic into the event handler.
+**Fix:** Move the logic into the event handler, passing just-computed values as arguments (`post(buildJson(next))`) — state read there still holds pre-render values. Keep the effect (or use `flushSync`) when the next value isn't knowable in the handler (functional updates) or the code must run after the DOM updates.
 
 ```tsx
 // Before
 const [jsonToSubmit, setJsonToSubmit] = useState(null);
-useEffect(() => { if (jsonToSubmit) post(jsonToSubmit); }, [jsonToSubmit]);
-function onClick() { setJsonToSubmit(buildJson()); }
+useEffect(() => {
+    if (jsonToSubmit) post(jsonToSubmit);
+}, [jsonToSubmit]);
+function onClick() {
+    setJsonToSubmit(buildJson());
+}
 
 // After
-function onClick() { post(buildJson()); }
+function onClick() {
+    post(buildJson());
+}
 ```
 
 ### 6. Chains of Effects [high]
@@ -110,23 +116,27 @@ const c = deriveC(b);
 ### 7. App-init logic in `useEffect(..., [])` [medium]
 
 **Detect:** Empty-dep effect calling `loadAuth/checkToken/init` in `App` or root component.
-**Fix:** Run once at module top-level, or in the entry file before mount.
+**Fix:** Run once at module top-level, or in the entry file before mount. App entry points only — in code imported by others (libraries, shared modules) keep the effect: a top-level call runs at import time and touches storage/auth in tests, SSR, and consumers that merely import the module.
 
 ```tsx
 // Before
 function App() {
-  useEffect(() => { loadAuthFromStorage(); }, []);
+    useEffect(() => {
+        loadAuthFromStorage();
+    }, []);
 }
 
 // After
 loadAuthFromStorage();
-function App() { /* ... */ }
+function App() {
+    /* ... */
+}
 ```
 
 ### 8. Notifying parent via Effect [medium]
 
 **Detect:** `useEffect(() => onChange(value), [value])`.
-**Fix:** Either lift state to the parent, or call `onChange` in the handler alongside `setState`.
+**Fix:** Either lift state to the parent, or call `onChange` in the handler alongside `setState`. If several code paths set the state (resets, prop-driven updates, shortcuts), add the call to every one of them or lift the state — patching a single handler silently drops the rest.
 
 ```tsx
 // Before
@@ -135,8 +145,8 @@ useEffect(() => onToggle(open), [open]);
 
 // After
 function handleToggle(next) {
-  setOpen(next);
-  onToggle(next);
+    setOpen(next);
+    onToggle(next);
 }
 ```
 
@@ -152,81 +162,91 @@ function handleToggle(next) {
 
 ```tsx
 // Before
-useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]);
+useEffect(() => {
+    fetch(url)
+        .then((r) => r.json())
+        .then(setData);
+}, [url]);
 
 // After
 useEffect(() => {
-  let ignore = false;
-  fetch(url).then(r => r.json()).then(d => { if (!ignore) setData(d); });
-  return () => { ignore = true; };
+    let ignore = false;
+    fetch(url)
+        .then((r) => r.json())
+        .then((d) => {
+            if (!ignore) setData(d);
+        });
+    return () => {
+        ignore = true;
+    };
 }, [url]);
 ```
 
 ### 11. Manual subscribe-via-Effect [medium]
 
-**Detect:** `useEffect` adding `addEventListener` / store subscription + `setState`.
-**Fix:** Use `useSyncExternalStore` for external store subscriptions.
+**Detect:** `useEffect` subscribing to an external value you can read synchronously (e.g. `navigator.onLine`) via `addEventListener` + `setState`.
+**Fix:** Use `useSyncExternalStore`. If the value only exists in the event payload (`mousemove`, `keydown`), there's no snapshot — keep it an effect.
 
 ```tsx
 // Before
 const [online, setOnline] = useState(navigator.onLine);
 useEffect(() => {
-  const onChange = () => setOnline(navigator.onLine);
-  window.addEventListener('online', onChange);
-  window.addEventListener('offline', onChange);
-  return () => {
-    window.removeEventListener('online', onChange);
-    window.removeEventListener('offline', onChange);
-  };
+    const onChange = () => setOnline(navigator.onLine);
+    window.addEventListener("online", onChange);
+    window.addEventListener("offline", onChange);
+    return () => {
+        window.removeEventListener("online", onChange);
+        window.removeEventListener("offline", onChange);
+    };
 }, []);
 
 // After
 const online = useSyncExternalStore(
-  cb => {
-    window.addEventListener('online', cb);
-    window.addEventListener('offline', cb);
-    return () => {
-      window.removeEventListener('online', cb);
-      window.removeEventListener('offline', cb);
-    };
-  },
-  () => navigator.onLine,
-  () => true
+    (cb) => {
+        window.addEventListener("online", cb);
+        window.addEventListener("offline", cb);
+        return () => {
+            window.removeEventListener("online", cb);
+            window.removeEventListener("offline", cb);
+        };
+    },
+    () => navigator.onLine,
+    () => true,
 );
 ```
 
 ### 12. Effect with no deps array [medium]
 
 **Detect:** `useEffect` called with a single argument (no second array).
-**Fix:** Add a dependency array. Mount-only → `[]`. Otherwise list every value the effect reads.
+**Fix:** Add a dependency array. Mount-only → `[]`. Otherwise list every value the effect reads. Skip effects that intentionally run after every render (e.g. syncing an imperative widget on each commit) — there, any array changes behavior.
 
 ```tsx
 // Before — runs after every render
 useEffect(() => {
-  document.title = `Hello ${name}`;
+    document.title = `Hello ${name}`;
 });
 
 // After
 useEffect(() => {
-  document.title = `Hello ${name}`;
+    document.title = `Hello ${name}`;
 }, [name]);
 ```
 
 ### 13. Unstable literal in deps array [medium]
 
 **Detect:** Dependency array contains an inline object/array literal, or a value (object, array, function) constructed in render scope without `useMemo`/`useCallback`.
-**Fix:** Depend on primitives, or memoize the constructed value.
+**Fix:** Depend on primitives, or memoize the constructed value. Keep every other value the effect reads in the array — were `fetchData` a prop or declared in render scope, it belongs in the deps too (the example assumes a stable import).
 
 ```tsx
 // Before — `filter` is a new object every render → effect re-runs every render
 const filter = { pageSize, sort };
 useEffect(() => {
-  fetchData(filter);
+    fetchData(filter);
 }, [filter]);
 
 // After
 useEffect(() => {
-  fetchData({ pageSize, sort });
+    fetchData({ pageSize, sort });
 }, [pageSize, sort]);
 ```
 
@@ -270,14 +290,30 @@ setItems([...items, newItem]);
 ```tsx
 // Before
 function Page({ items }) {
-  function Item({ x }) { return <li>{x}</li>; }
-  return <ul>{items.map(i => <Item x={i} key={i.id} />)}</ul>;
+    function Item({ x }) {
+        return <li>{x}</li>;
+    }
+    return (
+        <ul>
+            {items.map((i) => (
+                <Item x={i} key={i.id} />
+            ))}
+        </ul>
+    );
 }
 
 // After
-function Item({ x }) { return <li>{x}</li>; }
+function Item({ x }) {
+    return <li>{x}</li>;
+}
 function Page({ items }) {
-  return <ul>{items.map(i => <Item x={i} key={i.id} />)}</ul>;
+    return (
+        <ul>
+            {items.map((i) => (
+                <Item x={i} key={i.id} />
+            ))}
+        </ul>
+    );
 }
 ```
 
@@ -304,10 +340,14 @@ For all list-key pitfalls below: if no stable id exists on the items, skip the f
 
 ```tsx
 // Before — every row re-mounts on every render
-{items.map(item => <Row key={Math.random()} item={item} />)}
+{
+    items.map((item) => <Row key={Math.random()} item={item} />);
+}
 
 // After
-{items.map(item => <Row key={item.id} item={item} />)}
+{
+    items.map((item) => <Row key={item.id} item={item} />);
+}
 ```
 
 ---
@@ -317,17 +357,17 @@ For all list-key pitfalls below: if no stable id exists on the items, skip the f
 ### 21. useCallback/useMemo on props to non-memoized child [low]
 
 **Detect:** `useCallback` or `useMemo` whose result is passed as a prop to a child not wrapped in `React.memo`.
-**Fix:** Drop the memo (it does nothing) — or memoize the child too if its re-renders are actually expensive.
+**Fix:** Drop the memo (it does nothing) — or memoize the child too if its re-renders are actually expensive. Keep it, though, if the value is a hook dependency (`useEffect`/`useMemo`/`useCallback`), forwarded to a memoized descendant, or the computation itself is expensive — that cache saves recomputing on unrelated parent renders regardless of the child.
 
 ### 22. Spreading props through a memoized child [low]
 
 **Detect:** `<ChildMemo {...props} />` — props forwarded by spread to a `React.memo`-wrapped child.
-**Fix:** Pass explicit props. Spread doesn't break memo by itself (`React.memo` shallow-compares each prop after JSX expansion), but it hides which props are flowing through. If any one of them is an unstable callback, inline object, or array, memo silently breaks and the cause is invisible. Listing props makes the unstable one obvious.
+**Fix:** Pass explicit props. Spread doesn't break memo by itself (`React.memo` shallow-compares each prop after JSX expansion), but it hides which props are flowing through. If any one of them is an unstable callback, inline object, or array, memo silently breaks and the cause is invisible. Listing props makes the unstable one obvious. Closed prop sets only — wrappers that intentionally forward an open bag (`data-*`, `aria-*`, event handlers) must keep the spread; fix the unstable prop instead.
 
 ### 23. `React.memo` with non-memoized children prop [medium]
 
 **Detect:** `<ParentMemo><Child/></ParentMemo>` where the children JSX is created inline.
-**Fix:** Either memoize the children element with `useMemo`, wrap `Child` in `React.memo`, or rethink the boundary.
+**Fix:** Memoizing the wrapper won't help — `children` is a new object each render. Wrap `Child` in `React.memo`, memoize the children element, or rethink the boundary.
 
 ### 24. Stale closure in `useCallback([])` [medium]
 
@@ -354,7 +394,7 @@ const onClick = useCallback(() => save(value), [value]);
 ### 26. Unstable context value object [low]
 
 **Detect:** `<Ctx.Provider value={{ a, b }}>` with an inline object or array literal.
-**Fix:** Wrap the value in `useMemo`.
+**Fix:** Wrap the value in `useMemo`. List every captured value in the deps — `setUser` is omitted below only because React state setters are identity-stable; prop callbacks and locally declared actions are not and must be listed (or stabilized first).
 
 ```tsx
 // Before
