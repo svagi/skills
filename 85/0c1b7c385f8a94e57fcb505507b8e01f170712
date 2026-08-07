@@ -1,0 +1,19 @@
+grill-me/SKILL.md
+  s_5df945db2e7292::t_cd77ab78ef5c77 6,8,10-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "850c1b7c385f8a94e57fcb505507b8e01f170712",
+  "prompts": {},
+  "sessions": {
+    "s_5df945db2e7292": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f8e405fa-58e1-4c78-b189-fa712348c7ab",
+        "model": "unknown"
+      },
+      "human_author": "Jan Svager <jan@svager.cz>"
+    }
+  }
+}
