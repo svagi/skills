@@ -1,0 +1,21 @@
+README.md
+  s_437adb76f2068b::t_d6c8963b025c5d 11-16
+codebase-design/SKILL.md
+  s_437adb76f2068b::t_9584faa1ee585f 1-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "c800ae99f776f812d9c7040023463b7cfc108a0f",
+  "prompts": {},
+  "sessions": {
+    "s_437adb76f2068b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f3be782-b656-4479-bbae-108f78941ad7",
+        "model": "unknown"
+      },
+      "human_author": "Jan Svager <jan@svager.cz>"
+    }
+  }
+}
