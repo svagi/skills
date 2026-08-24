@@ -1,0 +1,16 @@
+improve-codebase-architecture/HTML-REPORT.md
+  h_760dd9de39179b 3,12,38,42,46-53,59,80,88,99-100,108,116,121,123
+improve-codebase-architecture/SKILL.md
+  h_760dd9de39179b 3,9,11,17,19-20,22,25,34,36,38,40-45,49,59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e57d1ac69938eca7f86a49f81d48ab0cf1c3075c",
+  "prompts": {},
+  "humans": {
+    "h_760dd9de39179b": {
+      "author": "Jan Svager <jan@svager.cz>"
+    }
+  }
+}
