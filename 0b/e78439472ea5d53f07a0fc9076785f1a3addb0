@@ -1,0 +1,19 @@
+improve-codebase-architecture/SKILL.md
+  s_437adb76f2068b::t_fbdbb011094cbe 4,34-39,74,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "0be78439472ea5d53f07a0fc9076785f1a3addb0",
+  "prompts": {},
+  "sessions": {
+    "s_437adb76f2068b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f3be782-b656-4479-bbae-108f78941ad7",
+        "model": "unknown"
+      },
+      "human_author": "Jan Svager <jan@svager.cz>"
+    }
+  }
+}
