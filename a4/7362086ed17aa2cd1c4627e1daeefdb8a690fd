@@ -1,0 +1,23 @@
+README.md
+  s_437adb76f2068b::t_b6d92c8ac1abf6 11
+codebase-design/SKILL.md
+  s_437adb76f2068b::t_4385e1cf8d62c9 114
+improve-codebase-architecture/SKILL.md
+  s_437adb76f2068b::t_7624296289ea27 76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "a47362086ed17aa2cd1c4627e1daeefdb8a690fd",
+  "prompts": {},
+  "sessions": {
+    "s_437adb76f2068b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f3be782-b656-4479-bbae-108f78941ad7",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Jan Svager <jan@svager.cz>"
+    }
+  }
+}
