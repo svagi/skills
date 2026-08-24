@@ -73,4 +73,4 @@ Do NOT propose interfaces yet. After the file is written, ask the user: "Which o
 
 Once the user picks a candidate, invoke the `/grill-me` skill to walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
-- **Want to explore alternative interfaces for the deepened module?** Invoke the `design-an-interface` skill, briefed as described in [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
+- **Want to explore alternative interfaces for the deepened module?** Invoke the `codebase-design` skill and use its design-it-twice parallel sub-agent pattern.

@@ -8,16 +8,10 @@ A collection of agent skills that extend capabilities across planning, developme
   npx skills@latest add svagi/skills/grill-me
   ```
 
-- **codebase-design** — Shared vocabulary for designing deep modules: depth, seams, adapters, leverage, and locality. Other skills load it when they need the deep-module language.
+- **codebase-design** — Shared vocabulary for designing deep modules: depth, seams, adapters, leverage, and locality. Includes deepening guidance and the design-it-twice pattern for exploring alternative interfaces.
 
   ```
   npx skills@latest add svagi/skills/codebase-design
-  ```
-
-- **design-an-interface** — Generate multiple radically different interface designs for a module using parallel sub-agents.
-
-  ```
-  npx skills@latest add svagi/skills/design-an-interface
   ```
 
 - **improve-codebase-architecture** — Find deepening opportunities in a codebase. Surface architectural friction and propose refactors that turn shallow modules into deep ones.
